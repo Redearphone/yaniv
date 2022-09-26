@@ -1,5 +1,26 @@
 package portfolio.yaniv;
 
+/*
+プレイヤーは今回3人。
+ * カードは54枚使用します。
+ * それぞれのカードには点数があります。
+ * A...1点
+ * 2~10...数字通りの点数
+ * J,Q,K...10点
+ * ジョーカー...0点
+ * 各プレイヤーには初めにカードが5枚ずつ配られ、この5枚の合計点数を5以下にするのが、このゲームの主な目的です。
+ * また場には山札と捨て場所を用意します。捨て場所にはあらかじめ山札の一番上のカードを一枚表向きにして置いておきます。
+ * 番が回ってきたプレイヤーは山札か捨て場所からカードを一枚引きます。
+ * 次に手札の中から、いらないカードを一枚捨て場所に置きます。このとき同じ数字のカードがもう一枚ある場合はその同じ数字のカードも一緒に捨てることができます。
+ * 同時に捨てれるのは二枚までです。
+ * これでプレイヤーの番は終了で次の人に番が回ります。
+ * これを繰り返していき、最終的に手札の合計数を5以下にします。
+ * 手札の合計数が5以下になったとき、次の自分の番で「やにぶ」と宣言します。
+ * そうするとゲームが終了し、宣言したプレイヤーの勝ちになります。
+ */
+
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -29,17 +50,17 @@ public class yanivgame {
 
     public static void main(String[] args) {
         Scanner stdIn = new Scanner(System.in);
-        System.out.println("テスト");
 
+        // デッキをシャッフルする
         shuffleDeck(deck);
-
-        trashDeck.add(deck.get(15));
-
 
         // プレイヤーとcpuの手札リストを生成
         List <Integer> player = new ArrayList<>();
         List <Integer> cpu1 = new ArrayList<>();
         List <Integer> cpu2 = new ArrayList<>();
+
+        // 捨て場所にデッキから一枚追加する
+        trashDeck.add(deck.get(15));
 
         // デッキのカウント
         int deckCount = 1;
@@ -56,17 +77,24 @@ public class yanivgame {
         do{
             // -------------------playerの番----------------------- //
             System.out.println("playerの番です。");
+
+            // もし手札が5以下のとき、「やにふ」を宣言する
             int playersum = totalHand(player);
             if(playersum <= 5){
                 System.out.println("やにふ！！！！");
                 winner = 1;
                 break;
             } 
+
+            // 現在の手札と合計開示
             System.out.print("現在のあなたの手札 : ");
             handOpen(player);
             int sum = totalHand(player);
             System.out.println("合計は" + sum + "です。");
 
+            // System.out.println("＊確認用trashcount" + trashCount);
+
+            // 山札か捨て場所か選んで引く
             int selecthand;
             do{ 
                 System.out.println("どちらから引きますか？ 山札...0 / 捨て場所([" + trashDeck.get(trashCount) + "])...1"); 
@@ -89,6 +117,7 @@ public class yanivgame {
             System.out.println("次に手札を１枚捨てます。");
             System.out.println("どのカードを捨てますか？");
 
+            // 手札にある数を選んで捨てる
             int selectNum;
             boolean checkNum;
             do{
@@ -107,12 +136,11 @@ public class yanivgame {
             }while(checkNum == false);
                 
                 trashCard(player, selectNum, trashDeck);
-            
                 trashCount++;
                 // System.out.println("＊確認用trashcount" + trashCount);
             
 
-
+            // 同じカードがある場合もう一枚捨てる
             for(int i = 0; i < player.size(); i++) {
                 if (selectNum == player.get(i)) {
                     System.out.println("同じカードがありますが、もう１枚捨てますか？ はい...0 / いいえ...1");
@@ -123,17 +151,18 @@ public class yanivgame {
                         }        
                     } while( !(selecthand == 0 || selecthand == 1));
                     if (selecthand == 0){
+                        System.out.println("[" + player.get(i) + "]を捨てました。");
                         trashCard(player, selectNum, trashDeck);
                         trashCount++;
                         // System.out.println("＊確認用trashcount" + trashCount);
 
-                        System.out.println("[" + player.get(i) + "]を捨てました。");
                         break;
                     }
                 }
             }
 
             handOpen(player);
+            System.out.println();
             System.out.println("-----------------------playerのターン終了-------------------------");
             System.out.println();
 
@@ -187,22 +216,19 @@ public class yanivgame {
 
             trashCard(cpu1, maxCpu1, trashDeck);
             trashCount++;
+            // System.out.println("＊確認用trashcount" + trashCount);
 
             for(int i = 0; i < cpu1.size(); i++) {
                 if(maxCpu1 == cpu1.get(i)) {
                     trashCard(cpu1, maxCpu1, trashDeck);
                     trashCount++;
                     // System.out.println("＊確認用trashcount" + trashCount);
-
                     break;
                 }
             }
 
             System.out.println("ケビンのカード枚数は「" + cpu1.size() + "」枚です。");
             System.out.println();
-            for (int i=0; i<cpu1.size(); i++){
-                System.out.print("["+cpu1.get(i)+ "] ");
-            }
             System.out.println("-----------------------ケビンのターン終了-------------------------");
             System.out.println();
 
@@ -229,7 +255,7 @@ public class yanivgame {
                     System.out.println("ワトソン君は捨て場所から引きました。");
                     trashAdd(cpu2,trashDeck,trashCount);
                     trashCount--;
-                    System.out.println("＊確認用trashcount" + trashCount);
+                    // System.out.println("＊確認用trashcount" + trashCount);
 
                     break;
                 } 
@@ -241,7 +267,7 @@ public class yanivgame {
                     System.out.println("ワトソン君は捨て場所から引きました。");
                     trashAdd(cpu2,trashDeck,trashCount);
                     trashCount--;
-                    System.out.println("＊確認用trashcount" + trashCount);
+                    // System.out.println("＊確認用trashcount" + trashCount);
                 } else {
                     // 捨て場所の数が手札の一番小さい数より大きいとき山札から引く
                     System.out.println("ワトソン君は山札から引きました。");
@@ -260,16 +286,12 @@ public class yanivgame {
                 if(maxCpu2 == cpu2.get(i)) {
                     trashCard(cpu2, maxCpu2, trashDeck);
                     trashCount++;
-                    System.out.println("＊確認用trashcount" + trashCount);
+                    // System.out.println("＊確認用trashcount" + trashCount);
                     break;
                 }
             }
-    
             System.out.println("ワトソン君のカード枚数は「" + cpu2.size() + "」枚です。");
             System.out.println();
-        for (int i=0; i<cpu2.size(); i++){
-            System.out.print("["+cpu2.get(i)+ "] ");
-        }
             System.out.println("-----------------------ワトソン君のターン終了-------------------------");
             System.out.println();
         } while(true);
@@ -284,12 +306,14 @@ public class yanivgame {
 
         // cpu確認用
         System.out.println();
+        System.out.print("ケビンの手札");
         for (int i=0; i<cpu1.size(); i++){
-            System.out.print(cpu1.get(i)+ ",");
+            System.out.print("[" + cpu1.get(i) + "]");
         }
         System.out.println();
+        System.out.print("ワトソン君の手札");
         for (int i=0; i<cpu2.size(); i++){
-            System.out.print(cpu2.get(i)+ ",");
+            System.out.print("[" + cpu2.get(i) + "]");
         }
 
     }
@@ -360,9 +384,9 @@ public class yanivgame {
         do{
             for(int i=0; i < player.size(); i++){
                 int playerHand = player.get(i);
-                trashDeck.add(playerHand);
                 if(selectNum == playerHand) {
                     checkNum = true;
+                    trashDeck.add(playerHand);
                     player.remove(i);
                     break;
                 } 
